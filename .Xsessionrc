@@ -1,0 +1,6 @@
+# add path
+if [ -d "$HOME/bin" ] && (! echo $PATH | grep -q "$HOME/bin"); then
+    export PATH="$HOME/bin:$PATH"
+fi
+export FONTCONFIG_PATH=/etc/fonts
+export GTK_THEME=Dracula

@@ -1,0 +1,31 @@
+[user]
+    email = mcgillivray.jason@gmail.com
+    name = mcgillij
+[init]
+    defaultBranch = main
+[core]
+    pager = delta
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    light = false    # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    tool = difftastic
+    colorMoved = default
+
+[difftool]
+        prompt = false
+
+[difftool "difftastic"]
+    cmd = difft "$LOCAL" "$REMOTE"
+
+# Use a pager for large output, just like other git commands.
+[pager]
+        difftool = true
+
+# `git dft` is less to type than `git difftool`.
+[alias]
+        dft = difftool
