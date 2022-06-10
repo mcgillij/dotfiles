@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ssh ryzen ~/bin/set_vm_env_nixos

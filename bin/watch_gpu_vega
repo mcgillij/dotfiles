@@ -1,0 +1,1 @@
+sudo watch -n 0.5  cat /sys/kernel/debug/dri/1/amdgpu_pm_info

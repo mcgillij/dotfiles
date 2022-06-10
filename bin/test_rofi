@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+  wtwitch check | sed -n '/Live/,/Offline/p' | sed '/Live channels/d;/Offline/d' | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;s/   //;'
+else
+  name=$(echo "$1" | awk {'print $1'} | sed 's/\://')
+  # !CRASH! streamlink --player=mpv https://www.twitch.tv/$name best & > /dev/null
+  # mpv https://twitch.tv/$name > /dev/null
+  wtwitch w $name > /dev/null
+fi

@@ -1,0 +1,3 @@
+#!/bin/bash
+#tmux -2 new -s vimde  teamocil vimde
+tmuxp load vimde

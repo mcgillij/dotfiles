@@ -1,0 +1,1 @@
+hexdump -v -e 3/1 %02x  \n /dev/input/mice

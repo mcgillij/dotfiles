@@ -1,0 +1,3 @@
+#!/bin/bash
+pacman -Qii | grep ^MODIFIED | cut -f2
+

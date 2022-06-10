@@ -1,0 +1,5 @@
+#!/bin/bash
+#rdesktop ryzen:9000 -g 2560x1440
+#rdesktop ryzen:9000 -g 2560x1440 -5 -K -r clipboard:CLIPBOARD
+xfreerdp /v:ryzen:3389 /clipboard /h:1440 /w:2560 /clipboard
+#xfreerdp /v:ryzen:9000 /clipboard /h:1440 /w:2560 /clipboard

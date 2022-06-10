@@ -1,0 +1,2 @@
+#!/bin/bash
+alacritty --class newsboat -t newsboat -e tmux new -s newsboat newsboat &

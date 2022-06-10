@@ -1,0 +1,16 @@
+#!/bin/bash
+
+handle_selection() {
+    if [[ $1 ]]; then
+        name=$(echo "$1" | awk {'print $1'} | sed 's/\://')
+        notify-send "wtwitch" "Launching the livestream with $name"
+        mpv https://twitch.tv/"$name" --title="{author}: {title} ({category})"
+        #streamlink https://twitch.tv/$name --title "{author}: {title} ({category})"
+    else
+        wtwitch check | sed -n '/Live/,/Settings/p' | sed '/Live channels/d;/Settings/d' | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;s/   //;'
+        exit 1
+    fi
+}
+
+handle_selection "$1"
+#handle_selection "$( wtwitch check | sed -n '/Live/,/Settings/p' | sed '/Live channels/d;/Settings/d' | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;s/   //;' | rofi -font "xos4terminus 12" -bw 3 -dmenu -i -p 'wtwitch' )"
