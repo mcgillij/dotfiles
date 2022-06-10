@@ -149,8 +149,8 @@ bar {
 exec --no-startup-id alacritty
 exec --no-startup-id firefox
 exec --no-startup-id flameshot
-exec --no-startup-id deluge
-exec --no-startup-id discord
+exec --no-startup-id GTK_THEME=Adwaita:dark deluge
+exec --no-startup-id discord-canary
 exec --no-startup-id strawberry
 
 # Set Monitor setup
