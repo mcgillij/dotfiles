@@ -1,2 +1,0 @@
-# dotfiles
-just some dotfiles
