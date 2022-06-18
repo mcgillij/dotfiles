@@ -118,6 +118,10 @@ Plug 'romgrk/barbar.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 " Helper for showing command keys after 500ms delay
 Plug 'folke/which-key.nvim'
+" null-ls
+Plug 'jose-elias-alvarez/null-ls.nvim'
+" trouble.vim
+Plug 'folke/trouble.nvim'
 call plug#end()
 
 " color schemes
@@ -158,6 +162,9 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
+" Yank to clipboard
+nnoremap  <leader>yy  "+yy
+
 " Remap <Tab>/<Shift><Tab> to toggle between windows
 nnoremap <Tab> <C-W>w
 nnoremap <S-Tab> <C-W>W
@@ -183,6 +190,14 @@ let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
 nnoremap <silent> <Space> :NERDTreeToggle<CR>
 tnoremap <Esc> <C-\><C-n>
 
+" trouble.nvim
+nnoremap <leader>xx <cmd>TroubleToggle<cr>
+nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
+nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
+nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
+nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
+nnoremap gR <cmd>TroubleToggle lsp_references<crc
+
 set completeopt=menu,menuone,noselect
 " Plugin configurations made in lua
 " These could all be added to a separate plugin file since they are mostly
@@ -190,6 +205,21 @@ set completeopt=menu,menuone,noselect
 " line init.vim I left them in here.
 "
 lua << EOF
+
+-- null-ls 
+-- Adding the rst to parse files with vale
+-- This requires vale to be installed vale.sh to find it
+require("null-ls").setup({
+    sources = {
+        require("null-ls").builtins.diagnostics.vale.with({
+            filetypes = { "markdown", "text", "rst" }
+            ,}),
+    },
+})
+
+
+-- trouble.nvim
+require("trouble").setup {}
 
 local cmp = require'cmp'
 
