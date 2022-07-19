@@ -1,12 +1,9 @@
 #!/bin/bash
 # If nothing is passed in print a list of streams
 if [[ -z "$1" ]]; then
-    #wtwitch check | sed -n '/Live/,/Offline/p' | sed '/Live channels/d;/Offline/d' | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;s/   //;'
     wtwitch check | sed -n '/Live/,/Offline/p' | sed '/Live channels/d;/Offline/d' | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g;s/   //;'
 else
     # if a param is passed in, open the stream
     name=$(echo "$1" | awk {'print $1'} | sed 's/\://')
-    #streamlink --player=mpv https://www.twitch.tv/$name best & > /dev/null
-    #mpv https://twitch.tv/$name > /dev/null
     wtwitch w "$name" > /dev/null
 fi
