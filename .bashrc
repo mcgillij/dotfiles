@@ -21,6 +21,10 @@ if [ -d "$HOME/.local/bin" ] && (! echo "$PATH" | grep -q "$HOME/.local/bin"); t
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
+if [ -d "$HOME/.cargo/bin" ] && (! echo "$PATH" | grep -q "$HOME/.cargo/bin"); then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 if [ -d "$HOME/.pyenv/bin" ] && (! echo "$PATH" | grep -q "$HOME/.pyenv/bin"); then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
