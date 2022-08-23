@@ -1,7 +1,7 @@
 [user]
     email = mcgillivray.jason@gmail.com
     name = mcgillij
-	signingKey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSsJjYL0PNE8/ahTdQXbiOS4Fdg/rY8pafH2YWjmpJM mcgillivray.jason@gmail.com
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSsJjYL0PNE8/ahTdQXbiOS4Fdg/rY8pafH2YWjmpJM mcgillivray.jason@gmail.com
 [init]
     defaultBranch = main
 [core]
@@ -18,17 +18,23 @@
     colorMoved = default
 
 [difftool]
-        prompt = false
+    prompt = false
 
 [difftool "difftastic"]
     cmd = difft "$LOCAL" "$REMOTE"
 
 # Use a pager for large output, just like other git commands.
 [pager]
-        difftool = true
+    difftool = true
 
 # `git dft` is less to type than `git difftool`.
 [alias]
-        dft = difftool
+    dft = difftool
 [gpg]
 	format = ssh
+[push]
+	autoSetupRemote = true
+[commit]
+	gpgsign = true
+[gpg "ssh"]
+	allowedSignersFile = /home/j/.config/git/allowed_signers
