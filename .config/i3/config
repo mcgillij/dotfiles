@@ -163,6 +163,9 @@ exec --no-startup-id "set-dpi"
 
 exec --no-startup-id "~/bin/restart_picom"
 
+# screenshot with flameshot
+bindcode 107 exec --no-startup-id flameshot gui
+
 # floating windows
 # bindcode 67 == F1 (button on the keyboard)
 bindcode 67 [instance="dropdown"] scratchpad show; [instance="dropdown"] move position center

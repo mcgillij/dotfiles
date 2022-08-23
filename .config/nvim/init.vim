@@ -50,6 +50,9 @@ filetype plugin on
 set cursorline              " highlight current cursorline
 set ttyfast                 " Speed up scrolling in Vim
 
+" fix resizing bug
+autocmd VimEnter * :silent exec "!kill -s SIGWINCH $PPID"
+
 " Python Neovim venv
 " Neovim recommends you create a virtual env just for installing the neovim and pynvim modules, so you don't need to add them to each of your projects dev dependencies.
 "

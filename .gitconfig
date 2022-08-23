@@ -1,6 +1,7 @@
 [user]
     email = mcgillivray.jason@gmail.com
     name = mcgillij
+	signingKey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSsJjYL0PNE8/ahTdQXbiOS4Fdg/rY8pafH2YWjmpJM mcgillivray.jason@gmail.com
 [init]
     defaultBranch = main
 [core]
@@ -29,3 +30,5 @@
 # `git dft` is less to type than `git difftool`.
 [alias]
         dft = difftool
+[gpg]
+	format = ssh
