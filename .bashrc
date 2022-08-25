@@ -68,6 +68,10 @@ nprocs=$(nproc)
 export MAKEFLAGS="-j$nprocs"
 export PAGER='less -r'
 
+# setup ssh agent
+eval $(ssh-agent -s) > /dev/null 2>&1
+ssh-add ~/.ssh/id_ed25519 > /dev/null 2>&1
+
 # Dracula man page theme
 man() {
     env LESS_TERMCAP_mb=$'[01;31m' \

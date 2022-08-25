@@ -1,0 +1,3 @@
+#!/bin/bash
+
+yay -Qo $1
