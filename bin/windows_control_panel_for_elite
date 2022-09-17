@@ -1,0 +1,2 @@
+WINEPREFIX=/home/j/.steam/steam/steamapps/compatdata/359320/pfx /home/j/.steam/steam/steamapps/common/Proton\ -\ Experimental/files/bin/wine64 control
+#SDL_JOYSTICK_DEVICE=/dev/input/js1 WINEPREFIX=/home/j/.steam/steam/steamapps/compatdata/359320/pfx /home/j/.steam/steam/steamapps/common/Proton\ -\ Experimental/files/bin/wine64 control

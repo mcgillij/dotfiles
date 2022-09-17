@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# clean pacman and yay caches / build dirs
+
+yay -Sc

@@ -23,7 +23,6 @@
 " change the leader key from "\" to ","
 let mapleader=","
 
-
 set list " show white space
 set spell " use spellchecking
 set listchars=tab:~-,trail:∙,eol:$ " whitespace charmap

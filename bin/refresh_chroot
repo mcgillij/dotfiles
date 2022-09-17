@@ -1,0 +1,5 @@
+#!/bin/bash
+# refresh build chroot for building arch packages
+
+arch-nspawn /home/j/chroot/root pacman -Syy
+arch-nspawn /home/j/chroot/root pacman -Syu

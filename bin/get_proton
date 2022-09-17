@@ -1,0 +1,2 @@
+cd /home/j/gits/get_latest_proton_ge/
+poetry run python src/get_latest_proton_ge/get_latest_proton_ge.py 
