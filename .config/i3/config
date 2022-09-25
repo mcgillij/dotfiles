@@ -116,7 +116,11 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # no window titles
-new_window pixel 1
+# *deprecated* new_window pixel 1
+#Hide window title bar
+default_border pixel 1
+default_floating_border pixel 1
+for_window [class="^.*"] border pixel 1
 
 bar {
   colors {
