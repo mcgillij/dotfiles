@@ -132,3 +132,7 @@ _fzf_compgen_dir() {
 
 # git completion
 [ -r /usr/share/git/completion/git-completion.bash ] && source /usr/share/git/completion/git-completion.bash
+
+
+# docker alias for rocm/pytorch
+alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $HOME/dockerx:/dockerx'
