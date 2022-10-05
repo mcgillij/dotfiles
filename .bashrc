@@ -96,13 +96,10 @@ if [ -f /home/j/.config/synth-shell/synth-shell-prompt.sh ] && [ -n "$( echo $- 
     source /home/j/.config/synth-shell/synth-shell-prompt.sh
 fi
 
-# Nix
-if [ -e /home/j/.nix-profile/etc/profile.d/nix.sh ]; then . /home/j/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-
 # Dracula in my fzf
-export FZF_DEFAULT_OPTS='
-  --color fg:255,bg:236,hl:84,fg+:255,bg+:236,hl+:215
-  --color info:141,prompt:84,spinner:212,pointer:212,marker:212'
+#
+export FZF_DEFAULT_OPTS='--color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4'
+
 export FZF_CTRL_T_OPTS="--preview '[[ \$(file --mime {}) =~ binary ]] &&
     echo {} is a binary file ||
     (bat --style=numbers --color=always {} ||

@@ -144,7 +144,7 @@ bar {
         separator_symbol "|"
         tray_padding 0
         workspace_buttons yes
-        output DP-3
+        output DisplayPort-2
         workspace_min_width 40
 }
 

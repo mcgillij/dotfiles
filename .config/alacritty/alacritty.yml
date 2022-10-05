@@ -8,8 +8,8 @@ font:
     #   - (macOS) Menlo
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
-    family: 'Hack'
-      #family: 'SourceCodePro'
+    #family: 'Hack'
+    family: 'SourceCodePro'
     #family: 'Hack'
     #family: 'SourceCodePro'
 

@@ -1,0 +1,3 @@
+auto-reload no
+browser firefox
+macro v set browser "setsid -f mpv --really-quiet --no-terminal" ; open-in-browser ; set browser firefox
