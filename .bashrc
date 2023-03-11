@@ -133,3 +133,5 @@ _fzf_compgen_dir() {
 
 # docker alias for rocm/pytorch
 alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $HOME/dockerx:/dockerx'
+export PATH="/home/j/.local/bin:$PATH"
+export PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring

@@ -4,12 +4,6 @@
     signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSsJjYL0PNE8/ahTdQXbiOS4Fdg/rY8pafH2YWjmpJM mcgillivray.jason@gmail.com
 [init]
     defaultBranch = main
-[core]
-    pager = delta
-[delta]
-    navigate = true  # use n and N to move between diff sections
-    light = false    # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
-
 [merge]
     conflictstyle = diff3
 
