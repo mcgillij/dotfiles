@@ -78,7 +78,7 @@
 ##	with an escape sequence. An escape sequence starts with an <ESC>
 ##	character (commonly \e[), followed by one or more formatting codes
 ##	(its possible) to apply more that one color/effect at a time),
-##	and finished by a lower case m. For example, the formatting code 1 
+##	and finished by a lower case m. For example, the formatting code 1
 ##	tells the terminal to print the text bold face. This is acchieved as:
 ##		\e[1m Hello World!
 ##
@@ -180,7 +180,7 @@ get8bitCode()
 		light-blue)
 			echo 64
 			;;
-		light-magenta)
+		light-magenta|light-purple)
 			echo 65
 			;;
 		light-cyan)
@@ -378,7 +378,7 @@ removeColorCodes()
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2023, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -419,6 +419,7 @@ shortenPath()
 	local max_length=$2
 	local default_max_length=25
 	local trunc_symbol=".."
+    ## CHECK PARAMETERS AND INIT
 	if   [ -z "$path" ]; then
 		echo ""
 		exit
@@ -428,29 +429,51 @@ shortenPath()
 	## CLEANUP PATH
 	## Replace HOME with ~ for the current user, similar to sed.
 	local path=${path/#$HOME/\~}
-	## TRUNCATE DIR IF NEEDED
-	## - Get curred directory (last folder in path)
-	## - Get max length, as the greater of etiher the (desired) max lenght
-	##   and the length of the current dir. Dir never gets truncated.
-	## - If path length > max_length 
-	##	- Truncate the path to max_length
-	##	- Clean off path fragments before first '/' (included)
-	##	- Append "trunc_symbol", '/', and the clean path
+	## GET PRINT LENGHT
+	## - Get curred directory (last folder in path) to get its length (num characters).
+	## - Determine the actual max length we will use to truncate, choosing between either
+    ##   $max_length, set by the usert, or the length of the current dir,
+    ##   depending on which is greater. This ensures that even if we set a
+    ##   relatively  low $max_length value, the name of the current dir will not
+    ##   be truncated. Store in $print_length
 	local dir=${path##*/}
 	local dir_length=${#dir}
 	local path_length=${#path}
-	local print_length=$(( ( max_length < dir_length ) ? dir_length : max_length ))
+	local print_length=$(( ( max_length < dir_length ) ? dir_length : max_length )) #
+    ## TRUNCATE PATH TO
+	## - If $path_length > $print_lenght
+	##	- Truncate the path to max_length
+	##	- Clean off path fragments before first '/' (included)
+    ##  - Check if the bit we have removed would have landed at home
+    ##    - If at home, prepend '~' to the clean path
+	##	  - Else, prepend the "trunc_symbol" to the clean path
 	if [ $path_length -gt $print_length ]; then
 		local offset=$(( $path_length - $print_length ))
 		local truncated_path=${path:$offset}
-		local clean_path=${truncated_path#*/}
-		local short_path=${trunc_symbol}/${clean_path}
+		local clean_path="/${truncated_path#*/}"
+        local removed_path=${path%%"$clean_path"}
+        if [ "$removed_path" == "~" ]; then
+            local short_path="~${clean_path}"
+        else
+		    local short_path=${trunc_symbol}${clean_path}
+        fi
 	else
 		local short_path=$path
 	fi
 	## RETURN FINAL PATH
 	echo $short_path
 }
+##==============================================================================
+##	DEBUG
+##==============================================================================
+#PATH1="/home/andy/my/imaginary/file/path"
+#echo "$PATH1"
+#echo "50: $(shortenPath "$PATH1" 50)"
+#echo "25: $(shortenPath "$PATH1" 25)"
+#echo "24: $(shortenPath "$PATH1" 24)"
+#echo "23: $(shortenPath "$PATH1" 23)"
+#echo "22: $(shortenPath "$PATH1" 22)"
+#echo "10: $(shortenPath "$PATH1" 10)"
 ##==============================================================================
 ## COLORS
 ##
@@ -460,12 +483,13 @@ shortenPath()
 ## -  HOST: shows the host's name.
 ## -   PWD: shows the current directory.
 ## -   GIT: if inside a git repository, shows the name of current branch.
-## - PYENV: if inside a Python Virtual environment
-## -    TF: if inside a Terraform Workspace
+## - PYENV: if inside a Python Virtual environment.
+## -    TF: if inside a Terraform Workspace.
+## - CLOCK: shows current time in H:M format.
 ## - INPUT: actual bash input.
-## 
+##
 ## Valid color options:
-## - white black light-gray dark-gray 
+## - white black light-gray dark-gray
 ##   red green yellow blue cyan purple
 ##   light-red light-green light-yellow light-blue light-cyan light-purple
 ## - Values in the range [0-255] for 256 bit colors. To check all number-color
@@ -474,7 +498,7 @@ shortenPath()
 ##   or search something like "bash 256 color codes" on the internet.
 ##
 ##==============================================================================
-format="USER HOST PWD GIT PYENV TF"
+format="USER HOST PWD GIT PYENV TF KUBE"
 font_color_user="white"
 background_user="blue"
 texteffect_user="bold"
@@ -490,9 +514,15 @@ texteffect_git="bold"
 font_color_pyenv="white"
 background_pyenv="blue"
 texteffect_pyenv="bold"
+font_color_kube="white"
+background_kube="purple"
+texteffect_kube="bold"
 font_color_tf="purple"
 background_tf="light-purple"
 texteffect_tf="bold"
+font_color_clock="white"
+background_clock="light-blue"
+texteffect_clock="bold"
 font_color_input="45"
 background_input="none"
 texteffect_input="bold"
@@ -506,21 +536,23 @@ prompt_horizontal_padding=''    #
 prompt_final_padding=''         #
 segment_padding=' '             #
 enable_vertical_padding=true    # Add extra new line over prompt
+max_pwd_char="20"
 ##==============================================================================
 ## GIT
 ##==============================================================================
 git_symbol_synced=''
 git_symbol_unpushed=' ▲'
 git_symbol_unpulled=' ▼'
-git_symbol_unpushedunpulled=' ●'
-git_symbol_dirty=' □'
-git_symbol_dirty_unpushed=' △'
-git_symbol_dirty_unpulled=' ▽'
-git_symbol_dirty_unpushedunpulled=' ○'
+git_symbol_unpushedunpulled=' ◆'
+git_symbol_dirty=' ◔'
+git_symbol_dirty_unpushed=' ◔ △'
+git_symbol_dirty_unpulled=' ◔ ▽'
+git_symbol_dirty_unpushedunpulled=' ◔ ◇'
+git_update_period_minutes=15	# Use -1 to disable automatic updates
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2018-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2018-2023, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -540,7 +572,7 @@ git_symbol_dirty_unpushedunpulled=' ○'
 ##	DESCRIPTION
 ##
 ##	This script updates your "PS1" environment variable to display colors.
-##	Additionally, it also shortens the name of your current path to a 
+##	Additionally, it also shortens the name of your current path to a
 ##	maximum 25 characters, which is quite useful when working in deeply
 ##	nested folders.
 ##
@@ -561,7 +593,7 @@ synth_shell_prompt()
 ##	FUNCTIONS
 ##==============================================================================
 ##------------------------------------------------------------------------------
-##	getGitInfo
+##
 ##	Returns current git branch for current directory, if (and only if)
 ##	the current directory is part of a git repository, and git is installed.
 ##
@@ -572,7 +604,7 @@ synth_shell_prompt()
 ##		up to date	SSP_GIT_SYNCED		SSP_GIT_DIRTY
 ##		ahead		SSP_GIT_AHEAD		SSP_GIT_DIRTY_AHEAD
 ##		behind		SSP_GIT_BEHIND		SSP_GIT_DIRTY_BEHIND
-##		diverged	SSP_GIT_DIVERGED	SSP_GIT_DIRTY_DIVERGED		
+##		diverged	SSP_GIT_DIVERGED	SSP_GIT_DIRTY_DIVERGED
 ##
 ##	Returns an empty string otherwise.
 ##
@@ -586,6 +618,38 @@ getGitBranch()
 		local branch=$(git branch 2> /dev/null |\
 		             sed -n '/^[^*]/d;s/*\s*\(.*\)/\1/p')
 		if [[ -n "$branch" ]]; then
+			## UPDATE LOCAL GIT BRANCH (i.e., fetch)
+			## This will talk to the remote repository to get the latest
+			## updates. Because doing so for every terminal prompt can
+			## (and will) be slow, the script will do so only if its globaly
+			## enabled and only periodically in the background.
+			if [ "$SSP_GIT_UPDATE_PERIOD_MINUTES" -ge 0 ]; then
+				## Find .git
+				local d="$PWD"
+				local max_lvls=25
+				while [ ! -e "./.git" -a $max_lvls -gt 0 ]; do
+					cd .. # Go up 1 level
+					max_lvls=$((max_lvls - 1))
+				done
+				local dot_git="${PWD}/.git"
+				cd "$d"
+				## Check if submodule
+				if [ -f "$dot_git" ]; then
+					local dot_git=$(cat $dot_git | grep 'gitdir' | sed 's/gitdir:\ //g')
+				fi
+				## Get timestamp
+				if [ -d "$dot_git" -a -e "${dot_git}/FETCH_HEAD" ]; then
+					local git_last_update=$(stat -c "%Y" "${dot_git}/FETCH_HEAD")
+				fi
+				## Update if it's time to do so
+				if [ ! -z $git_last_update ]; then
+					local current_timestamp=$(date +%s)
+					local elapsed_minutes=$(((current_timestamp-git_last_update)/60))
+					if [ "$elapsed_minutes" -ge "$SSP_GIT_UPDATE_PERIOD_MINUTES" ]; then
+						git fetch --recurse-submodules > /dev/null 2>&1 &
+					fi
+				fi
+			fi
 			## GET GIT STATUS
 			## This information contains whether the current branch is
 			## ahead, behind or diverged (ahead & behind), as well as
@@ -625,12 +689,15 @@ getGitBranch()
 				local symbol=$SSP_GIT_SYNCED
 			fi
 			## RETURN STRING
-			echo "$branch$symbol"	
+			echo "$branch$symbol"
 		fi
 	fi
 	## DEFAULT
 	echo ""
 }
+##------------------------------------------------------------------------------
+##
+##
 getTerraform()
 {
 	## Check if we are in a terraform directory
@@ -643,20 +710,45 @@ getTerraform()
 		fi
 	fi
 }
+##------------------------------------------------------------------------------
+##
+##
 getPyenv()
 {
-	if [ -n "$VIRTUAL_ENV" ]; then
-		local pyenv=$(basename ${VIRTUAL_ENV})
+	## Conda environment
+	if [ -n "$CONDA_DEFAULT_ENV" ]; then
+		echo "$CONDA_DEFAULT_ENV"
+	## Python virtual environment
+	elif [ -n "${VIRTUAL_ENV:-}" ]; then
+        local regex='PS1=\"\((.*?)\)\s\$\{PS1'
+        local pyenv=$(cat $VIRTUAL_ENV/bin/activate | perl -n -e"/$regex/ && print \$1" 2> /dev/null)
+        if [ -z "${pyenv}" ]; then
+            local pyenv=$(basename ${VIRTUAL_ENV})
+        fi
 		echo "$pyenv"
 	fi
 }
+##------------------------------------------------------------------------------
+##
+##
+getKube()
+{
+	type kubectl &>/dev/null && \
+	type yq &>/dev/null && \
+	echo -n "$(kubectl config view | yq '.contexts[].context.cluster |select(.contexts[].name == .current-context)' | head -n 1)"
+}
+##------------------------------------------------------------------------------
+##
+## Print each word of the propmpt, i.e., a small text acompanied by the
+## separator character and formated with colors and background.
+##
 printSegment()
 {
 	## GET PARAMETERS
 	local text=$1
 	local font_color=$2
 	local background_color=$3
-	local next_background_color=$4
+	local next_background_color=$4 # needed for the separator, it participates in this and the next text segment
 	local font_effect=$5
 	## COMPUTE COLOR FORMAT CODES
 	local no_color="\[$(getFormatCode -e reset)\]"
@@ -665,6 +757,9 @@ printSegment()
 	## GENERATE TEXT
 	printf "${text_format}${segment_padding}${text}${segment_padding}${separator_padding_left}${separator_format}${separator_char}${separator_padding_right}${no_color}"
 }
+##------------------------------------------------------------------------------
+##
+##
 get_colors_for_element()
 {
 	case $1 in
@@ -673,11 +768,16 @@ get_colors_for_element()
 		"PWD")   echo "${SSP_COLORS_PWD[@]}"  ;;
 		"GIT")   echo "${SSP_COLORS_GIT[@]}"  ;;
 		"PYENV") echo "${SSP_COLORS_PYENV[@]}";;
+		"KUBE")  echo "${SSP_COLORS_KUBE[@]}";;
 		"TF")    echo "${SSP_COLORS_TF[@]}"   ;;
+		"CLOCK") echo "${SSP_COLORS_CLOCK[@]}";;
 		"INPUT") echo "${SSP_COLORS_INPUT[@]}";;
 		*)
-	esac 
+	esac
 }
+##------------------------------------------------------------------------------
+##
+##
 combine_elements()
 {
 	local first=$1
@@ -690,7 +790,9 @@ combine_elements()
 		"PWD")   local text="$path" ;;
 		"GIT")   local text="$git_branch" ;;
 		"PYENV") local text="$pyenv" ;;
+		"KUBE")  local text="$kube" ;;
 		"TF")    local text="$tf" ;;
+		"CLOCK") local text="$clock" ;;
 		"INPUT") local text="" ;;
 		*)       local text="" ;;
 	esac
@@ -710,10 +812,12 @@ prompt_command_hook()
 	local elements=(${SSP_ELEMENTS[@]})
 	local user=$USER
 	local host=$HOSTNAME
-	local path="$(shortenPath "$PWD" 20)"
+	local path="$(shortenPath "$PWD" $SSP_MAX_PWD_CHAR)" # bash-tools::shortenPath
 	local git_branch="$(getGitBranch)"
 	local pyenv="$(getPyenv)"
+	local kube="$(getKube)"
 	local tf="$(getTerraform)"
+	local clock="$(date +"%H:%M")"
 	## ADAPT DYNAMICALLY ELEMENTS TO BE SHOWN
 	## Check if elements such as GIT and the Python environment should be
 	## shown and adapt the variables as needed. This usually implies removing
@@ -726,6 +830,9 @@ prompt_command_hook()
 	fi
 	if [ -z "$tf" ]; then
 		elements=( ${elements[@]/"TF"} ) # Remove TF from elements to be shown
+	fi
+	if [ -z "$kube" ]; then
+		elements=( ${elements[@]/"KUBE"} ) # Remove KUBE from elements to be shown
 	fi
 	## WINDOW TITLE
 	## Prevent messed up terminal-window titles, must be set in the PS1 variable
@@ -787,9 +894,12 @@ prompt_command_hook()
 	SSP_COLORS_PWD=($font_color_pwd $background_pwd $texteffect_pwd)
 	SSP_COLORS_GIT=($font_color_git $background_git $texteffect_git)
 	SSP_COLORS_PYENV=($font_color_pyenv $background_pyenv $texteffect_pyenv)
+	SSP_COLORS_KUBE=($font_color_kube $background_kube $texteffect_kube)
 	SSP_COLORS_TF=($font_color_tf $background_tf $texteffect_tf)
+	SSP_COLORS_CLOCK=($font_color_clock $background_clock $texteffect_clock)
 	SSP_COLORS_INPUT=($font_color_input $background_input $texteffect_input)
 	SSP_VERTICAL_PADDING=$vertical_padding
+	SSP_MAX_PWD_CHAR=${max_pwd_char:-20}
 	SSP_GIT_SYNCED=$git_symbol_synced
 	SSP_GIT_AHEAD=$git_symbol_unpushed
 	SSP_GIT_BEHIND=$git_symbol_unpulled
@@ -798,6 +908,7 @@ prompt_command_hook()
 	SSP_GIT_DIRTY_AHEAD=$git_symbol_dirty_unpushed
 	SSP_GIT_DIRTY_BEHIND=$git_symbol_dirty_unpulled
 	SSP_GIT_DIRTY_DIVERGED=$git_symbol_dirty_unpushedunpulled
+	SSP_GIT_UPDATE_PERIOD_MINUTES=$git_update_period_minutes
 	## For terminal line coloring, leaving the rest standard
 	none="$(tput sgr0)"
 	trap 'echo -ne "${none}"' DEBUG
@@ -807,7 +918,9 @@ prompt_command_hook()
 	## just before Bash displays a prompt.
 	## We want it to call our own command to truncate PWD and store it in NEW_PWD
 	PROMPT_COMMAND=prompt_command_hook
-}
+} # synth_shell_prompt()
+##------------------------------------------------------------------------------
+##
 ## CALL SCRIPT FUNCTION
 ## - CHECK IF SCRIPT IS _NOT_ BEING SOURCED
 ## - CHECK IF COLOR SUPPORTED

@@ -78,7 +78,7 @@
 ##	with an escape sequence. An escape sequence starts with an <ESC>
 ##	character (commonly \e[), followed by one or more formatting codes
 ##	(its possible) to apply more that one color/effect at a time),
-##	and finished by a lower case m. For example, the formatting code 1 
+##	and finished by a lower case m. For example, the formatting code 1
 ##	tells the terminal to print the text bold face. This is acchieved as:
 ##		\e[1m Hello World!
 ##
@@ -180,7 +180,7 @@ get8bitCode()
 		light-blue)
 			echo 64
 			;;
-		light-magenta)
+		light-magenta|light-purple)
 			echo 65
 			;;
 		light-cyan)
@@ -585,6 +585,65 @@ printTwoElementsSideBySide()
 	## LEAVE CURSOR AT "SAFE" POSITION	
 	moveCursorDown $(( $max_rows ))
 }
+#!/bin/bash
+##  +-----------------------------------+-----------------------------------+
+##  |                                                                       |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
+##  |                                                                       |
+##  | This program is free software: you can redistribute it and/or modify  |
+##  | it under the terms of the GNU General Public License as published by  |
+##  | the Free Software Foundation, either version 3 of the License, or     |
+##  | (at your option) any later version.                                   |
+##  |                                                                       |
+##  | This program is distributed in the hope that it will be useful,       |
+##  | but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+##  | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         |
+##  | GNU General Public License for more details.                          |
+##  |                                                                       |
+##  | You should have received a copy of the GNU General Public License     |
+##  | along with this program. If not, see <http://www.gnu.org/licenses/>.  |
+##  |                                                                       |
+##  +-----------------------------------------------------------------------+
+##
+##	DESCRIPTION
+##	===========
+##
+##	Helper script that prints a warning and calls 'exit 1' if any command
+##  name passed as an argument is not available on the system.
+##
+##
+##
+##	USAGE
+##	=====
+##
+##	exitIfCommandsNotAvailable <command 1> <command 2> <command 3>
+##
+##==============================================================================
+##	exitIfCommandsNotAvailable
+##==============================================================================
+exitIfCommandsNotAvailable() {
+	local num_missing=0
+	## Iterate over all commands to check
+	for maybe_command in "$@"; do
+		if [ -z $(command -v ${maybe_command}) ]; then
+			echo "'${maybe_command}' not found."
+			num_missing=$((num_missing+1))
+		fi
+	done
+	## Abort if any package was missing
+	if [ $num_missing -gt 0 ]; then
+		echo "Aborting: $num_missing commands were missing. Please install needed packages."
+		exit 1
+	fi
+}
+##==============================================================================
+##	DEBUG
+##==============================================================================
+## This should work
+#exitIfCommandsNotAvailable nano # 1 command
+#exitIfCommandsNotAvailable nano ssh # 2 commands
+## This should fail
+#exitIfCommandsNotAvailable random-command-name another-madeup-command
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
@@ -737,7 +796,7 @@ assert_empty()
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -843,7 +902,7 @@ printInfoMonitor()
 	local max=$3
 	local units=$4
 	local format=${5:-fraction}
-	local state=${6:-nominal}	
+	local state=${6:-nominal}
 	## FORMAT OPTIONS
 	local fc_label=${fc_info}
 	local fc_value=$(_getStateColor $state)
@@ -867,13 +926,13 @@ printInfoMonitor()
 	printf "%${bar_padding_after}s" ""
 	## PRINT VALUE
 	case $format in
-		"a/b")	
+		"a/b")
 			printf "${fc_value}%${padding_value}s" $value
 			printf "${fc_deco}/"
 			printf "${fc_value}%-${padding_value}s" $max
 			printf "${fc_units} ${units}${fc_none}"
 			;;
-		'0/0')		
+		'0/0')
 			if [ -z $(which 'bc' 2>/dev/null) ]; then
 				printf "${fc_error} bc not installed${fc_none}"
 			else
@@ -881,14 +940,14 @@ printInfoMonitor()
 				printf "${fc_value}%${padding_value}s${fc_units}%%%%${fc_none}" $percent
 			fi
 			;;
-		*)	
+		*)
 			echo "Invalid format option $format"
 	esac
 }
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -946,19 +1005,16 @@ getDate()
 }
 ##==============================================================================
 ##
-getUptime() 
+getUptime()
 {
-#	local uptime=$(uptime -p | sed 's/^[^,]*up *//g;
-#		                        s/s//g;
-#		                        s/ year/y/g;
-#		                        s/ month/m/g;
-#		                        s/ week/w/g;
-#		                        s/ day/d/g;
-#		                        s/ hour, /:/g;
-#		                        s/ minute//g')
-	local uptime=$(uptime | sed 's/^[^,]*up *//g;
-	                             s/,.*$/ hours/g')
-	printf "$uptime"
+	local seconds=`sed 's/\..*$//' /proc/uptime`
+	local hours=$(( $seconds/3600 ))
+	local minutes=$(( ( $seconds % 3600) / 60 ))
+	local minutes_suffix="mins"
+	local hours_suffix="hours"
+	if [ $minutes -eq 1 ]; then minutes_suffix="min"; fi
+	if [ $hours -eq 1 ];   then hours_suffix="hour";  fi
+	printf "$hours $hours_suffix $minutes $minutes_suffix"
 }
 ##==============================================================================
 ##
@@ -990,7 +1046,7 @@ getNameLoggedInUsers()
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -1036,17 +1092,15 @@ getNameCPU()
 }
 ##==============================================================================
 ##
-##==============================================================================
-##
 getCPULoad()
 {
-	local avg_load=$(uptime | sed 's/^.*load average: //g')	
+	local avg_load=$(uptime | sed 's/^.*load average: //g')
 	printf "$avg_load"
 }
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2023, Andres Gongora <mail@andresgongora.com>.     |
 ##  | Copyright (c) 2019, Sami Olmari <sami@olmari.fi>.                     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
@@ -1069,83 +1123,6 @@ getCPULoad()
 ##
 ##
 ##==============================================================================
-##
-##	getLocalIPv6()
-##
-##	Looks up and returns local IPv6-address.
-##	Test for the presence of several programs in case one is missing.
-##	Program search ordering is based on timed tests, fastest to slowest.
-##
-##	!!! NOTE: Still need to figure out how to look for IP address that
-##	!!!       have a default gateway attached to related interface,
-##	!!!       otherwise this returns a list of IPv6's if there are many.
-##
-getLocalIPv6()
-{
-	## GREP REGGEX EXPRESSION TO RETRIEVE IP STRINGS
-	##
-	## The following string is intuitive and easy to read, but only parses
-	## strings that look like IPs without checking their value. For instance,
-	## it does NOT check value ranges of IPv6
-	##
-	## grep explanation:
-	## -oP				only return matching parts of a line, and use perl regex
-	## \s*inet6\s+			any-spaces "inet6" at-least-1-space
-	## (addr:?\s*)?			optionally, followed by addr or addr:
-	## \K				everything until here, omit
-	## (){1,8}			repeat block at least 1 time, up to 8
-	## ([0-9abcdef]){0,4}:*		up to 4 chars from [] followed by :
-	##
-	#local grep_reggex='\s*inet6\s+(addr:?\s*)?\K(([0-9abcdef]){0,4}:*){1,8}'
-	##
-	## The following string, on the other hand, is harder to read and
-	## understand, but is MUCH safer, as it ensures that the IP
-	## fulfills some criteria.
-	local grep_reggex='^\s*inet6\s+(addr:?\s*)?\K((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?'
-	if   ( which ip > /dev/null 2>&1 ); then
-		local result=$($(which ip) -family inet6 addr show |\
-		grep -oP "$grep_reggex" |\
-		sed '/::1/d;:a;N;$!ba;s/\n/,/g')
-	elif ( which ifconfig > /dev/null 2>&1 ); then
-		local result=$($(which ifconfig) |\
-		grep -oP "$grep_reggex" |\
-		sed '/::1/d;:a;N;$!ba;s/\n/,/g')
-	else
-		local result="Error"
-	fi
-	## Returns "N/A" if actual query result is empty,
-	## and returns "Error" if no programs found
-	[ $result ] && printf $result || printf "N/A"
-}
-##==============================================================================
-##
-##	getExternalIPv6()
-##
-##	Makes an query to internet-server and returns public IPv6-address.
-##	Tests for the presence of several programs in case one is missing.
-##	Program search ordering is based on timed tests, fastest to slowest.
-##	DNS-based queries are always faster, ~0.1 seconds.
-##	URL-queries are relatively slow, ~1 seconds.
-##
-getExternalIPv6()
-{
-	if   ( which dig > /dev/null 2>&1 ); then
-		local result=$($(which dig) TXT -6 +short o-o.myaddr.l.google.com @ns1.google.com |\
-		               awk -F\" '{print $2}')
-	elif ( which nslookup > /dev/nul 2>&1 ); then
-		local result=$($(which nslookup) -q=txt o-o.myaddr.l.google.com 2001:4860:4802:32::a |\
-		               awk -F \" 'BEGIN{RS="\r\n"}{print $2}END{RS="\r\n"}')
-	elif ( which curl > /dev/null 2>&1 ); then
-		local result=$($(which curl) -s https://api6.ipify.org)
-	elif ( which wget > /dev/null 2>&1 ); then
-		local result=$($(which wget) -q -O - https://api6.ipify.org)
-	else
-		local result="Error"
-	fi
-	## Returns "N/A" if actual query result is empty,
-	## and returns "Error" if no programs found
-	[ $result ] && printf $result || printf "N/A"
-}
 ##==============================================================================
 ##
 ##	getLocalIPv4()
@@ -1179,7 +1156,7 @@ getLocalIPv4()
 	## understand, but is MUCH safer, as it ensure that the IP
 	## fulfills some criteria.
 	local grep_reggex='^\s*inet\s+(addr:?\s*)?\K(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
-	if   ( which ip > /dev/null 2>&1 ); then
+	if  ( which ip > /dev/null 2>&1 ); then
 		local ip=$('ip' -family inet addr show |\
 		           grep -oP "$grep_reggex" |\
 		           sed '/127.0.0.1/d;:a;N;$!ba;s/\n/, /g')
@@ -1208,16 +1185,16 @@ getLocalIPv4()
 getExternalIPv4()
 {
 	if   ( which dig > /dev/null 2>&1 ); then
-		local ip=$(dig +time=3 +tries=1 TXT -4 +short \
+		local ip=$(dig +time=1 +tries=1 TXT -4 +short \
 		           o-o.myaddr.l.google.com @ns1.google.com |\
 		           awk -F\" '{print $2}')
 	elif ( which drill > /dev/null 2>&1 ); then
-		local ip=$(drill +time=3 +tries=1 TXT -4 +short \
+		local ip=$(drill TXT -4 \
 		           o-o.myaddr.l.google.com @ns1.google.com |\
 		           grep IN | tail -n 1 | cut -f5 -s |\
 		           awk -F\" '{print $2}')
 	elif ( which nslookup > /dev/null 2>&1 ); then
-		local ip=$(nslookup -timeout=3 -q=txt \
+		local ip=$(nslookup -timeout=1 -q=txt \
 		           o-o.myaddr.l.google.com 216.239.32.10 |\
 		           awk -F \" 'BEGIN{RS="\r\n"}{print $2}END{RS="\r\n"}')
 	elif ( which curl > /dev/null 2>&1 ); then
@@ -1232,7 +1209,7 @@ getExternalIPv4()
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -1278,7 +1255,7 @@ printInfoSpacer()       { printInfoLine "" "" ; }
 ##==============================================================================
 printInfoGPU()
 {
-	# DETECT GPU(s)set	
+	# DETECT GPU(s)set
 	local gpu_ids=($(lspci 2>/dev/null | grep ' VGA ' | cut -d" " -f 1))
 	# FOR ALL DETECTED IDs
 	# Get the GPU name, but trim all buzzwords away
@@ -1303,6 +1280,7 @@ printInfoGPU()
 		                 s/\[AMD\/ATI\]/ATI/g;
 		                 s/Integrated Graphics Controller/HD Graphics/g;
 		                 s/Integrated Controller/IC/g;
+                         s/Matrox Electronics Systems Ltd. //g;
 		                 s/  */ /g'
 		           )
 		# If GPU name still to long, remove anything between []
@@ -1341,6 +1319,30 @@ printInfoSystemctl()
 }
 ##------------------------------------------------------------------------------
 ##
+printInfoJournalctl()
+{
+	if [ -z "$(pidof systemd)" ]; then
+		local sysctl="systemd not running"
+		local state="critical"
+	else
+		journalctl_num_error=$(journalctl --priority=3 --boot |\
+	                           grep -P -o "^\w+\s\d+\s\d{1,2}\:\d{1,2}\:\d{1,2}\s" |\
+	                           wc -l)
+	fi
+	if [ "$journalctl_num_error" -eq "0" ]; then
+			local sysctl="No errors"
+			local state="nominal"
+	elif [ "$journalctl_num_error" -eq "1" ]; then
+		local sysctl="1 error!"
+		local state="error"
+	else
+		local sysctl="$journalctl_num_error errors!"
+		local state="error"
+	fi
+	printInfoLine "System journal" "$sysctl" "$state"
+}
+##------------------------------------------------------------------------------
+##
 printInfoColorpaletteSmall()
 {
 	local char="▀▀"
@@ -1359,8 +1361,8 @@ printInfoColorpaletteSmall()
 ##
 printInfoColorpaletteFancy()
 {
-	## Line 1:	▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ 
-	## Line 2:	██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ 
+	## Line 1:	▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█ ▄▄█
+	## Line 2:	██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀ ██▀
 	local palette_top=$(printf '%s'\
 		"$(formatText "▄" -c dark-gray)$(formatText "▄" -c dark-gray -b black)$(formatText "█" -c black) "\
 		"$(formatText "▄" -c light-red)$(formatText "▄" -c light-red -b red)$(formatText "█" -c red) "\
@@ -1403,11 +1405,11 @@ printInfoCPUTemp()
 		            sed -n 's/^.*crit = +\(.*\) [[CF]]*[ \t]*.*/\1/p')
 		## DETERMINE STATE
 		## Use bc because we might be dealing with decimals
-		if   (( $(echo "$current < $high" | bc -l) )); then 
+		if   (( $(echo "$current < $high" | bc -l) )); then
 			local state="nominal"
-		elif (( $(echo "$current < $max" | bc -l) )); then 
+		elif (( $(echo "$current < $max" | bc -l) )); then
 			local state="critical";
-		else                             
+		else
 			local state="error";
 		fi
 		## PRINT MESSAGE
@@ -1424,7 +1426,7 @@ printResourceMonitor()
 	local max=$3
 	local units=$4
 	local format=$5
-	local crit_percent=$6	
+	local crit_percent=$6
 	local error_percent=${7:-99}
 	## CHECK STATE
 	local percent=$('bc' <<< "$value*100/$max")
@@ -1506,7 +1508,7 @@ printStorageMonitor()
 	local device=$2
 	local units=$3
 	local format=$4
-	local crit_percent=$5	
+	local crit_percent=$5
 	local error_percent=${6:-99}
 	case "$units" in
 		"MB")		local units="MB"; local option="M" ;;
@@ -1525,20 +1527,20 @@ printMonitorHDD()
 	assert_is_set $bar_hdd_units
 	assert_is_set $bar_hdd_crit_percent
 	local format=$1
-	local label="Storage /"	
+	local label="Storage /"
 	local device="/"
 	local units=$bar_hdd_units
 	local crit_percent=$bar_hdd_crit_percent
 	printStorageMonitor "$label" "$device" "$units" "$format" "$crit_percent"
 }
 ##------------------------------------------------------------------------------
-## 
+##
 printMonitorHome()
 {
 	assert_is_set $bar_home_units
 	assert_is_set $bar_home_crit_percent
 	local format=$1
-	local label="Storage /home"	
+	local label="Storage /home"
 	local device=$HOME
 	local units=$bar_home_units
 	local crit_percent=$bar_home_crit_percent
@@ -1630,7 +1632,7 @@ printMonitorCPUTemp()
 ##	with an escape sequence. An escape sequence starts with an <ESC>
 ##	character (commonly \e[), followed by one or more formatting codes
 ##	(its possible) to apply more that one color/effect at a time),
-##	and finished by a lower case m. For example, the formatting code 1 
+##	and finished by a lower case m. For example, the formatting code 1
 ##	tells the terminal to print the text bold face. This is acchieved as:
 ##		\e[1m Hello World!
 ##
@@ -1732,7 +1734,7 @@ get8bitCode()
 		light-blue)
 			echo 64
 			;;
-		light-magenta)
+		light-magenta|light-purple)
 			echo 65
 			;;
 		light-cyan)
@@ -2218,7 +2220,7 @@ assert_empty()
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -2244,7 +2246,7 @@ assert_empty()
 ##==============================================================================
 [ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 ##==============================================================================
-##	
+##
 ##==============================================================================
 ##------------------------------------------------------------------------------
 ##
@@ -2281,6 +2283,28 @@ reportSystemctl()
 		    local failed=$(systemctl --failed | awk '/UNIT/,/^$/')
 		    printf "\n${fc_crit}SYSTEMCTL FAILED SERVICES:\n"
 		    printf "${fc_info}${failed}${fc_none}\n"
+	    fi
+    fi
+}
+##------------------------------------------------------------------------------
+##
+reportJournalctl()
+{
+	assert_is_set ${fc_highlight}
+	assert_is_set ${fc_info}
+	assert_is_set ${fc_crit}
+	assert_is_set ${fc_none}
+    ## 1. Check if systemd is running (it might not on some distros/Windows)
+    ## 2. Get number of error messages reported by journalctl
+    ## 3. Report those messages, if any
+    if [ -n "$(pidof systemd)" ]; then
+	    journalctl_num_error=$(journalctl --priority=3 --boot |\
+	                           grep -P -o "^\w+\s\d+\s\d{1,2}\:\d{1,2}\:\d{1,2}\s" |\
+	                           wc -l)
+	    if [ "$journalctl_num_error" -ne "0" ]; then
+		    printf "\n${fc_crit}JOURNALCTL ERRORS: ${fc_info}(run 'journalctl --priority=3 --boot' for complete info)${fc_none}\n"
+			journalctl --priority=3 --boot --no-pager --output=short --no-hostname --no-full -q
+			printf "${fc_none}\n"
 	    fi
     fi
 }
@@ -2353,7 +2377,7 @@ reportHogsMemory()
 		## First check if there is any swap at all by checking /proc/swaps
 		## If there is at least one swap partition listed, proceed
 		local swap_is_crit=false
-		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))	
+		local num_swap_devs=$(($(wc -l /proc/swaps | awk '{print $1;}') -1))
 		if [ "$num_swap_devs" -ge 1 ]; then
 			local swap_info=$('free' -m | tail -n 1)
 			local current=$(echo "$swap_info" | awk '{SWAP=($3)} END {printf SWAP}')
@@ -2382,7 +2406,7 @@ reportHogsMemory()
 ## LOGO
 ##
 ## Configure the logo to your liking. You can either use the default or
-## set your own ASCII art down below. 
+## set your own ASCII art down below.
 ##
 ## - You can either add it as a single line, or multiline (terminated with \).
 ## - You have to escape backslashes if you want them to show inside your logo.
@@ -2394,7 +2418,7 @@ reportHogsMemory()
 ##==============================================================================
 logo="\e[38;5;213m                          __  __
         _______  ______  / /_/ /_
-       / ___/ / / / __ \/ __/ __ \ 
+       / ___/ / / / __ \/ __/ __ \\
       /__  / /_/ / / / / /_/ / / /
      /____/\__  /_/ /_/\__/_/ /_/
           /____/
@@ -2422,6 +2446,7 @@ logo="\e[38;5;213m                          __  __
 ## LOCALIPV4            IPv4
 ## EXTERNALIPV4         External IPv4 (might be slow)
 ## SERVICES             Summary of failed services
+## JOURNAL				Report high priority errors in the systemd journal
 ## CPULOAD              Sys load average(eg. 0.23, 0.26, 0.27 )
 ## CPUTEMP              CPU temperature (requires lm-sensors)
 ##
@@ -2445,25 +2470,24 @@ logo="\e[38;5;213m                          __  __
 ##
 ##==============================================================================
 print_info="
-        OS
-        KERNEL
-        CPU
-        GPU
-        SHELL
-        DATE
-        UPTIME
-        LOCALIPV4
-        EXTERNALIPV4
-        SERVICES
-        SYSLOAD_MON%
-        MEMORY_MON
-        SWAP_MON
-        HDDROOT_MON
-        HDDHOME_MON"
-        #CPUTEMP
+	OS
+	KERNEL
+	CPU
+	GPU
+	SHELL
+	DATE
+	UPTIME
+	LOCALIPV4
+	EXTERNALIPV4
+	SERVICES
+	SYSLOAD_MON%
+	MEMORY_MON
+	SWAP_MON
+	HDDROOT_MON
+	HDDHOME_MON"
 ##==============================================================================
 ## COLORS
-## 
+##
 ## Control the color and format scheme of the status report.
 ## -c color: color name or 256bit color code
 ## -b background color: color name or 256bit color code
@@ -2527,7 +2551,7 @@ print_extra_new_line_bot=true   # Extra line after logo and info
 #!/bin/bash
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |
-##  | Copyright (c) 2019-2020, Andres Gongora <mail@andresgongora.com>.     |
+##  | Copyright (c) 2019-2021, Andres Gongora <mail@andresgongora.com>.     |
 ##  |                                                                       |
 ##  | This program is free software: you can redistribute it and/or modify  |
 ##  | it under the terms of the GNU General Public License as published by  |
@@ -2576,7 +2600,7 @@ if   [ -f "$target_config_file" ]; then source "$target_config_file" ;
 elif [ -f "$user_config_file" ]; then source "$user_config_file" ;
 elif [ -f $root_config_file ] && [ "$USER" == "root" ]; then source "$root_config_file" ;
 elif [ -f "$sys_config_file" ]; then source "$sys_config_file" ;
-else : # Default config already "included" ; 
+else : # Default config already "included" ;
 fi
 ## COLOR AND TEXT FORMAT CODE
 local fc_info=$(getFormatCode $format_info)
@@ -2618,10 +2642,11 @@ printStatusInfo()
 			LOCALIPV4)      printInfoLocalIPv4;;
 			EXTERNALIPV4)   printInfoExternalIPv4;;
 			SERVICES)       printInfoSystemctl;;
+			JOURNAL)        printInfoJournalctl;;
 			PALETTE_SMALL)  printInfoColorpaletteSmall;;
 			PALETTE)        printInfoColorpaletteFancy;;
 			SPACER)         printInfoSpacer;;
-			CPULOAD) 	printInfoCPULoad;;
+			CPULOAD)        printInfoCPULoad;;
 			CPUTEMP)        printInfoCPUTemp;;
 		## 	USAGE MONITORS (BARS)
 		##	NAME            FUNCTION               AS %
@@ -2658,8 +2683,9 @@ printStatusInfo()
 printHeader()
 {
 	## GET ELEMENTS TO PRINT
-	local logo=$(echo "$fc_logo$logo$fc_none")
-	local info=$(printStatusInfo)
+	local logo=$(echo "$fc_logo$logo$fc_none" &)
+	local info=$(printStatusInfo &)
+    wait
 	## GET ELEMENT SIZES
 	local term_cols=$(getTerminalNumCols)
 	local logo_cols=$(getTextNumCols "$logo")
@@ -2682,18 +2708,24 @@ printHeader()
 printReports()
 {
 	reportLastLogins
-	reportSystemctl
-	reportHogsCPU
-	reportHogsMemory
+	if [[ "$print_info" == *"SERVICES"* ]]; then
+		reportSystemctl
+	fi
+	if [[ "$print_info" == *"JOURNAL"* ]]; then
+		reportJournalctl
+	fi
+	if [[ "$print_info" == *"SYSLOAD_MON"* ]]; then
+		reportHogsCPU
+	fi
+	if [[ "$print_info" == *"MEMORY_MON"* ]]; then
+		reportHogsMemory
+	fi
 }
 ##==============================================================================
 ##	MAIN
 ##==============================================================================
 ## CHECKS
-if [ -z "$(which 'bc' 2>/dev/null)" ]; then
-	printf "${fc_error}synth-shell-greeter: 'bc' not installed${fc_none}"
-	exit 1
-fi
+exitIfCommandsNotAvailable bc
 ## PRINT TOP SPACER
 if $clear_before_print; then clear; fi
 if $print_extra_new_line_top; then echo ""; fi
@@ -2702,7 +2734,7 @@ printHeader
 printReports
 ## PRINT BOTTOM SPACER
 if $print_extra_new_line_bot; then echo ""; fi
-}
+} ## /greeter
 ## RUN SCRIPT
 ## This whole script is wrapped with "{}" to avoid environment pollution.
 ## It's also called in a subshell with "()" to REALLY avoid pollution.
@@ -2711,6 +2743,6 @@ if $print_extra_new_line_bot; then echo ""; fi
 ## If not running interactively, don't do anything.
 ## Run with `LANG=C` so the code uses `.` as decimal separator.
 if [ -n "$( echo $- | grep i )" ]; then
-	(LC_ALL=C greeter "$1") 
+	(LC_ALL=C greeter "$1")
 fi
 unset greeter
