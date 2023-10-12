@@ -18,3 +18,4 @@
 *.color7:     #BFBFBF
 *.color15:    #E6E6E6
 Xft.dpi: 109.156
+Xcursor.theme: Alkano
