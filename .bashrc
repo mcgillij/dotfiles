@@ -52,9 +52,9 @@ alias diff='difft --color=auto'
 alias dmesg='dmesg --color=always'
 alias virsh='virsh -c qemu:///system'
 alias ag='batgrep' # just muscle memory
-alias ls='exa --icons'
-alias ll='exa --long --git --header --icons'
-alias lt='exa --tree --icons'
+alias ls='eza --icons'
+alias ll='eza --long --git --header --icons'
+alias lt='eza --tree --icons'
 alias tmux="tmux -2"
 alias discord='discord-canary'
 
@@ -130,8 +130,9 @@ _fzf_compgen_dir() {
 # git completion
 [ -r /usr/share/git/completion/git-completion.bash ] && source /usr/share/git/completion/git-completion.bash
 
-
-# docker alias for rocm/pytorch
-alias drun='sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $HOME/dockerx:/dockerx'
 export PATH="/home/j/.local/bin:$PATH"
 export PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring
+
+# from mitch
+alias syay='yay -Slq | fzf --multi --preview "yay -Si {1}" | xargs -ro yay -S'
+eval "$(github-copilot-cli alias -- "$0")"
