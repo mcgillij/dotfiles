@@ -1,7 +1,7 @@
 [user]
     email = mcgillivray.jason@gmail.com
     name = mcgillij
-    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSsJjYL0PNE8/ahTdQXbiOS4Fdg/rY8pafH2YWjmpJM mcgillivray.jason@gmail.com
+    signingkey = 5EB318ED1F8DCB1E
 [init]
     defaultBranch = main
 [merge]
@@ -24,8 +24,6 @@
 # `git dft` is less to type than `git difftool`.
 [alias]
     dft = difftool
-[gpg]
-    format = ssh
 [push]
     autoSetupRemote = true
 [gpg "ssh"]

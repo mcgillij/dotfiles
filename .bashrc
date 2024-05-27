@@ -136,3 +136,5 @@ export PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring
 # from mitch
 alias syay='yay -Slq | fzf --multi --preview "yay -Si {1}" | xargs -ro yay -S'
 eval "$(github-copilot-cli alias -- "$0")"
+
+export GPG_TTY=$(tty)
