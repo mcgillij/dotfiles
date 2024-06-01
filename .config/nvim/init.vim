@@ -64,7 +64,7 @@ autocmd VimEnter * :silent exec "!kill -s SIGWINCH $PPID"
 "
 " and then I just pasted the link for it here.
 " Use :checkhealth to make sure it's done correctly.
-let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.11/bin/python')
+let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.12/bin/python')
 
 " Plugin and their Dependencies
 "
@@ -125,7 +125,8 @@ Plug 'jose-elias-alvarez/null-ls.nvim'
 " trouble.vim
 Plug 'folke/trouble.nvim'
 call plug#end()
-
+" Copilot binding, since tab stopped working
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 " color schemes
 if (has("termguicolors"))
 set termguicolors
