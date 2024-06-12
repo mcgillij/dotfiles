@@ -72,7 +72,7 @@ bindsym $mod+Shift+q kill
 bindsym $mod+space exec --no-startup-id "rofi -modi 'drun,run,window' -show drun -font 'Roboto 16' -show-icons"
 
 # setup screen locking
-bindsym $mod+l exec --no-startup-id i3lock -c 000000
+bindsym $mod+F3 exec --no-startup-id i3lock -c 000000
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left move left
