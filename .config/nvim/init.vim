@@ -64,7 +64,7 @@ autocmd VimEnter * :silent exec "!kill -s SIGWINCH $PPID"
 "
 " and then I just pasted the link for it here.
 " Use :checkhealth to make sure it's done correctly.
-let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.12/bin/python')
+let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.12/bin/python3.12')
 
 " Plugin and their Dependencies
 "
@@ -85,10 +85,10 @@ Plug 'github/copilot.vim'
 " some nice colors
 Plug 'dracula/vim'
 " Some icons 
-Plug 'ryanoasis/vim-devicons'
+"Plug 'ryanoasis/vim-devicons'
 " required by some of the other plugins
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+"Plug 'SirVer/ultisnips'
+"Plug 'honza/vim-snippets'
 " File browser
 Plug 'scrooloose/nerdtree'
 Plug 'preservim/nerdcommenter'
@@ -113,9 +113,10 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'stevearc/dressing.nvim' " goes with telescope
 " Treesitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'kyazdani42/nvim-web-devicons'
 " Buffer bar
 Plug 'romgrk/barbar.nvim'
+Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
+Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
 " Bottom evilline
 Plug 'nvim-lualine/lualine.nvim'
 " Helper for showing command keys after 500ms delay
@@ -125,8 +126,7 @@ Plug 'jose-elias-alvarez/null-ls.nvim'
 " trouble.vim
 Plug 'folke/trouble.nvim'
 call plug#end()
-" Copilot binding, since tab stopped working
-imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+
 " color schemes
 if (has("termguicolors"))
 set termguicolors
@@ -150,6 +150,15 @@ nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" barbar configs
+" tab / left / right
+nnoremap <silent>    <A-[> <Cmd>BufferPrevious<CR>
+nnoremap <silent>    <A-]> <Cmd>BufferNext<CR>
+nnoremap <silent>    <A-,> <Cmd>BufferPrevious<CR>
+nnoremap <silent>    <A-.> <Cmd>BufferNext<CR>
+" Close buffer
+nnoremap <silent>    <A-c> <Cmd>BufferClose<CR>
 
 " Window shenans
 "open new split panes to right and below
@@ -185,21 +194,21 @@ nnoremap <leader>Z :wincmd =<cr>
 
 
 " Utilsnips
-let g:UltiSnipsExpandTrigger = '<tab>'
-let g:UltiSnipsJumpForwardTrigger = '<tab>'
-let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+"let g:UltiSnipsExpandTrigger = '<tab>'
+"let g:UltiSnipsJumpForwardTrigger = '<tab>'
+"let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
 
 " NerdTree with: ,<space>
 nnoremap <silent> <Space> :NERDTreeToggle<CR>
 tnoremap <Esc> <C-\><C-n>
 
 " trouble.nvim
-nnoremap <leader>xx <cmd>TroubleToggle<cr>
-nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
-nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
-nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
-nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
-nnoremap gR <cmd>TroubleToggle lsp_references<crc
+nnoremap <leader>xx <cmd>Trouble diagnostics toggle<cr>
+nnoremap <leader>xw <cmd>Trouble symbols toggle focus=false<cr>
+nnoremap <leader>xd <cmd>Trouble diagnostics toggle filter.buf=0<cr>
+nnoremap <leader>xq <cmd>Trouble qflist toggle<cr>
+nnoremap <leader>xl <cmd>Trouble loclist toggle<cr>
+nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 
 set completeopt=menu,menuone,noselect
 " Plugin configurations made in lua
@@ -281,7 +290,16 @@ cmp.setup({
 
 -- The nvim-cmp almost supports LSP's capabilities so You should advertise it to LSP servers..
 local capabilities = vim.lsp.protocol.make_client_capabilities()
---capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+
+require'cmp'.setup {
+  sources = {
+    { name = 'nvim_lsp' }
+  }
+}
+
+-- The nvim-cmp almost supports LSP's capabilities so You should advertise it to LSP servers..
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
 
 -- pyright LSP setup
 -- The following example advertise capabilities to `pyright`.
@@ -543,7 +561,7 @@ end
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local servers = { 'pyright', 'bashls', 'tflint', 'dockerls' }
+local servers = { 'pyright', 'bashls', 'tflint', 'dockerls', 'vimls', 'jsonls', 'yamlls' }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     on_attach = on_attach,
