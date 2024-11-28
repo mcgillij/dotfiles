@@ -127,17 +127,19 @@ Plug 'jose-elias-alvarez/null-ls.nvim'
 Plug 'folke/trouble.nvim'
 Plug 'habamax/vim-godot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'preservim/tagbar'
+Plug 'liuchengxu/vista.vim'
 call plug#end()
 
 " color schemes
 if (has("termguicolors"))
 set termguicolors
 endif
+
+" vista
+nmap <F8> :Vista!!<CR>
+
 "syntax enable
 colorscheme dracula
-" tagbar
-nmap <F8> :TagbarToggle<CR>
 " vim-slime configuration
 let g:slime_target = "tmux"
 let g:slime_paste_file = "$HOME/.slime_paste"
