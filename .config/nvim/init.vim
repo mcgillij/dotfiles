@@ -125,6 +125,9 @@ Plug 'folke/which-key.nvim'
 Plug 'jose-elias-alvarez/null-ls.nvim'
 " trouble.vim
 Plug 'folke/trouble.nvim'
+Plug 'habamax/vim-godot'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'preservim/tagbar'
 call plug#end()
 
 " color schemes
@@ -133,7 +136,8 @@ set termguicolors
 endif
 "syntax enable
 colorscheme dracula
-
+" tagbar
+nmap <F8> :TagbarToggle<CR>
 " vim-slime configuration
 let g:slime_target = "tmux"
 let g:slime_paste_file = "$HOME/.slime_paste"
@@ -210,12 +214,32 @@ nnoremap <leader>xq <cmd>Trouble qflist toggle<cr>
 nnoremap <leader>xl <cmd>Trouble loclist toggle<cr>
 nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 
+func! GodotSettings() abort
+    "setlocal foldmethod=expr
+    setlocal tabstop=4
+    nnoremap <buffer> <F4> :GodotRunLast<CR>
+    nnoremap <buffer> <F5> :GodotRun<CR>
+    nnoremap <buffer> <F6> :GodotRunCurrent<CR>
+    nnoremap <buffer> <F7> :GodotRunFZF<CR>
+endfunc
+augroup godot | au!
+    au FileType gdscript call GodotSettings()
+augroup end
+
+let g:tagbar_type_gdscript = {
+			\'ctagstype' :'gdscript',
+			\'kinds':[
+			\'v:variables',
+			\'f:functions',
+			\]
+			\}
+
 set completeopt=menu,menuone,noselect
 " Plugin configurations made in lua
 " These could all be added to a separate plugin file since they are mostly
 " just copy / pasted default configurations, but for the sake of having a one
 " line init.vim I left them in here.
-"
+
 lua << EOF
 
 -- null-ls 
@@ -236,12 +260,6 @@ require("trouble").setup {}
 local cmp = require'cmp'
 
 cmp.setup({
-  snippet = {
-    -- REQUIRED - you must specify a snippet engine
-    expand = function(args)
-      vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-    end,
-  },
   window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
@@ -255,7 +273,6 @@ cmp.setup({
   }),
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
-    { name = 'ultisnips' }, -- For ultisnips users.
   }, {
     { name = 'buffer' },
   })
@@ -300,6 +317,9 @@ require'cmp'.setup {
 -- The nvim-cmp almost supports LSP's capabilities so You should advertise it to LSP servers..
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
+require'lspconfig'.gdscript.setup {
+  capabilities = capabilities,
+}
 
 -- pyright LSP setup
 -- The following example advertise capabilities to `pyright`.
@@ -311,6 +331,7 @@ require("which-key").setup {}
 
 -- lualine setup
 local lualine = require('lualine')
+
 
 -- Color table for highlights
 local colors = {
@@ -570,4 +591,5 @@ for _, lsp in ipairs(servers) do
     }
   }
 end
+
 EOF
