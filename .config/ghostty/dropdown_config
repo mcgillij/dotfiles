@@ -1,0 +1,3 @@
+class = dropdown
+x11-instance-name = dropdown
+gtk-titlebar = false

@@ -1,0 +1,3 @@
+class = newsboat 
+x11-instance-name = newsboat 
+gtk-titlebar = false
