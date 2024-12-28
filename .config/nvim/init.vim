@@ -64,7 +64,7 @@ autocmd VimEnter * :silent exec "!kill -s SIGWINCH $PPID"
 "
 " and then I just pasted the link for it here.
 " Use :checkhealth to make sure it's done correctly.
-let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.12/bin/python3.12')
+let g:python3_host_prog = expand('~/.cache/pypoetry/virtualenvs/nvim-venv-zUWStWUI-py3.13/bin/python3.13')
 
 " Plugin and their Dependencies
 "

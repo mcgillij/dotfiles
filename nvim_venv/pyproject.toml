@@ -5,8 +5,8 @@ description = ""
 authors = ["mcgillij <mcgillivray.jason@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
-neovim = "^0.3.1"
+python = "^3.13"
+neovim = "*"
 
 [tool.poetry.dev-dependencies]
 

@@ -56,7 +56,7 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec alacritty
+bindsym $mod+Return exec ghostty
 # Add firefox
 bindsym $mod+Shift+Return exec --no-startup-id firefox
 
@@ -150,13 +150,18 @@ bar {
 
 #
 # startup apps
-exec --no-startup-id alacritty
+exec --no-startup-id ghostty
+exec --no-startup-id slack 
+exec --no-startup-id steam
 exec --no-startup-id firefox
 exec --no-startup-id flameshot
 exec --no-startup-id GTK_THEME=Adwaita:dark deluge
 exec --no-startup-id discord
 exec --no-startup-id strawberry
-
+# stop the sleep stuff
+exec --no-startup-id xset s off
+exec --no-startup-id xset -dpms
+exec --no-startup-id xset s noblank
 # Set Monitor setup
 
 # setup my monitors
@@ -177,7 +182,8 @@ for_window [instance="dropdown"] floating enable
 for_window [instance="dropdown"] resize set 2024 768 
 for_window [instance="dropdown"] move scratchpad
 for_window [instance="dropdown"] border pixel 4
-exec --no-startup-id "alacritty --class dropdown -t dropdown -e tmux"
+exec --no-startup-id "ghostty --config-file=/home/j/.config/ghostty/dropdown_config -e tmux"
+#exec --no-startup-id "alacritty --class dropdown -t dropdown -e tmux"
 
 # F2 newsboat
 bindcode 68 [instance="newsboat"] scratchpad show; [instance="newsboat"] move position center
@@ -185,7 +191,8 @@ for_window [instance="newsboat"] floating enable
 for_window [instance="newsboat"] resize set 2024 768 
 for_window [instance="newsboat"] move scratchpad
 for_window [instance="newsboat"] border pixel 4
-exec --no-startup-id "alacritty --class newsboat -t newsboat -e tmux new -s newsboat newsboat"
+#exec --no-startup-id "alacritty --class newsboat -t newsboat -e tmux new -s newsboat newsboat"
+exec --no-startup-id "ghostty --config-file=/home/j/.config/ghostty/newsboat_config -e tmux"
 
 # setup default floating windows
 for_window [class="rdesktop"] floating enable
@@ -196,6 +203,8 @@ for_window [class="dndclient64.exe"] floating enable
 for_window [class="steam_app_0"] floating enable
 #for_window[instance="Godot_Editor"] floating disable
 for_window[instance="Godot_Engine"] floating enable
+for_window[class="DORF"] border none
+for_window[class="wine"] floating enable
 
 #workaround for steamdeck
 popup_during_fullscreen smart

@@ -10,6 +10,9 @@ export GTK_THEME=Dracula
 export EDITOR=nvim
 export FONTCONFIG_PATH=/etc/fonts
 
+if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
+    builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/bash/ghostty.bash"
+fi
 
 # PATH Shenanigans for my tooling
 # add path to my own scripts
@@ -138,3 +141,6 @@ alias syay='yay -Slq | fzf --multi --preview "yay -Si {1}" | xargs -ro yay -S'
 eval "$(github-copilot-cli alias -- "$0")"
 
 export GPG_TTY=$(tty)
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/j/.cache/lm-studio/bin"
