@@ -28,12 +28,13 @@ if [ -d "$HOME/.cargo/bin" ] && (! echo "$PATH" | grep -q "$HOME/.cargo/bin"); t
     export PATH="$HOME/.cargo/bin:$PATH"
 fi
 
-if [ -d "$HOME/.pyenv/bin" ] && (! echo "$PATH" | grep -q "$HOME/.pyenv/bin"); then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    if command -v pyenv >/dev/null; then eval "$(pyenv init -)"; fi
-fi
+#if [ -d "$HOME/.pyenv/bin" ] && (! echo "$PATH" | grep -q "$HOME/.pyenv/bin"); then
+#@if [ -d "$HOME/.pyenv/bin" ] && (! echo "$PATH" | grep -q "$HOME/.pyenv/bin"); then
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+if command -v pyenv >/dev/null; then eval "$(pyenv init -)"; fi
+#fi
 
 # History Settings to make fzf more useful
 export HISTCONTROL=ignoredups

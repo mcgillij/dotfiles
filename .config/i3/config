@@ -144,7 +144,7 @@ bar {
         separator_symbol "|"
         tray_padding 0
         workspace_buttons yes
-        output DisplayPort-2
+        output DisplayPort-0
         workspace_min_width 40
 }
 
@@ -158,10 +158,6 @@ exec --no-startup-id flameshot
 exec --no-startup-id GTK_THEME=Adwaita:dark deluge
 exec --no-startup-id discord
 exec --no-startup-id strawberry
-# stop the sleep stuff
-exec --no-startup-id xset s off
-exec --no-startup-id xset -dpms
-exec --no-startup-id xset s noblank
 # Set Monitor setup
 
 # setup my monitors

@@ -128,6 +128,10 @@ Plug 'folke/trouble.nvim'
 Plug 'habamax/vim-godot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'liuchengxu/vista.vim'
+" pet
+Plug 'giusgad/pets.nvim'
+Plug 'giusgad/hologram.nvim'
+Plug 'MunifTanjim/nui.nvim'
 call plug#end()
 
 " color schemes
@@ -156,6 +160,10 @@ nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" moving around
+noremap <Up> 5k
+noremap <Down> 5j
 
 " barbar configs
 " tab / left / right
@@ -243,6 +251,13 @@ set completeopt=menu,menuone,noselect
 " line init.vim I left them in here.
 
 lua << EOF
+
+-- pet
+require("pets").setup({
+  -- your options here
+  default_pet = "dog", -- the pet to use for the PetNew command
+  default_style = "black",
+})
 
 -- null-ls 
 -- Adding the rst to parse files with vale
