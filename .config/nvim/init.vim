@@ -121,8 +121,6 @@ Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
 Plug 'nvim-lualine/lualine.nvim'
 " Helper for showing command keys after 500ms delay
 Plug 'folke/which-key.nvim'
-" null-ls
-Plug 'jose-elias-alvarez/null-ls.nvim'
 " trouble.vim
 Plug 'folke/trouble.nvim'
 Plug 'habamax/vim-godot'
@@ -258,18 +256,6 @@ require("pets").setup({
   default_pet = "dog", -- the pet to use for the PetNew command
   default_style = "black",
 })
-
--- null-ls 
--- Adding the rst to parse files with vale
--- This requires vale to be installed vale.sh to find it
-require("null-ls").setup({
-    sources = {
-        require("null-ls").builtins.diagnostics.vale.with({
-            filetypes = { "markdown", "text", "rst" }
-            ,}),
-    },
-})
-
 
 -- trouble.nvim
 require("trouble").setup {}
@@ -500,7 +486,7 @@ ins_left {
   function()
     local msg = 'No Active Lsp'
     local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
-    local clients = vim.lsp.get_active_clients()
+    local clients = vim.lsp.get_clients()
     if next(clients) == nil then
       return msg
     end

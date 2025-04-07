@@ -55,7 +55,7 @@ alias grep='grep --color=auto'
 alias diff='difft --color=auto'
 alias dmesg='dmesg --color=always'
 alias virsh='virsh -c qemu:///system'
-alias ag='batgrep' # just muscle memory
+alias ag='batgrep --no-ignore' # just muscle memory
 alias ls='eza --icons'
 alias ll='eza --long --git --header --icons'
 alias lt='eza --tree --icons'

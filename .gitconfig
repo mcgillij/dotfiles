@@ -9,7 +9,10 @@
 
 [diff]
     tool = difftastic
-    colorMoved = default
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
+    renames = true
 
 [difftool]
     prompt = false
@@ -26,9 +29,37 @@
     dft = difftool
 [push]
     autoSetupRemote = true
+    default = simple
+    followTags = true
+[pull]
+    rebase = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
 [gpg "ssh"]
     allowedSignersFile = /home/j/.config/git/allowed_signers
 [commit]
-	gpgsign = true
+    gpgsign = true
 [tag]
-	gpgsign = true
+    gpgsign = true
+
+[column]
+        ui = auto
+[branch]
+        sort = -committerdate
+[tag]
+        sort = version:refname
+[help]
+        autocorrect = prompt
+[commit]
+        verbose = true
+[rerere]
+        enabled = true
+        autoupdate = true
+;[core]
+        ;excludesfile = ~/.gitignore
+[rebase]
+        autoSquash = true
+        autoStash = true
+        updateRefs = true

@@ -1,1 +1,4 @@
 window-decoration = false
+clipboard-paste-protection = false
+clipboard-read = allow
+clipboard-write = allow
